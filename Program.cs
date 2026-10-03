@@ -1,5 +1,6 @@
 using PokemonServer.Clients;
 using PokemonServer.Services;
+using PokemonServer.Initializers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,8 +19,20 @@ builder.Services.AddHttpClient<PokemonApiClient>(client =>
     var pokemonApiBaseUrl = builder.Configuration["PokemonApi:BaseUrl"];
     client.BaseAddress = new Uri(pokemonApiBaseUrl!);
 });
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<PokemonInitializer>();
 
 var app = builder.Build();
+
+//Cargas iniciales
+using (var scope = app.Services.CreateScope())
+{
+    var pokemonInitializer = scope.ServiceProvider
+        .GetRequiredService<PokemonInitializer>();
+
+    //Inicialización de la memoria caché y almacenamiento de Pokemons 
+    await pokemonInitializer.InitializeAsync();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
