@@ -13,8 +13,8 @@ namespace PokemonServer.Exceptions;
 
 public class CustomException : Exception
 {
-    public int Status { get; }
-    public string Message { get; }
+    public int? Status { get; }
+    public string? Message { get; }
 
     protected CustomException(Messages.MessageConstructor message)
         : base(message.Message)

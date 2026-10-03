@@ -41,12 +41,13 @@ public class CatalogController : ControllerBase
 
             return StatusCode(HttpCodes.Ok, result);
         }
-        catch (CustomException ex)
+        catch (Exception ex)
         {
+            var customException = ex as CustomException;
             var result = new ApiResponseDto<object>
             {
-                Status = ex.Status,
-                Message = ex.Message
+                Status = customException.Status ?? Messages.Error.Default.Status,
+                Message = customException.Message ?? Messages.Error.Default.Message
             };
 
             return StatusCode(HttpCodes.InternalServerError, result);

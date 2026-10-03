@@ -14,6 +14,7 @@ builder.WebHost.UseUrls(
 // Servicios
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<CatalogService>();
+builder.Services.AddScoped<PokemonService>();
 builder.Services.AddHttpClient<PokemonApiClient>(client =>
 {
     var pokemonApiBaseUrl = builder.Configuration["PokemonApi:BaseUrl"];
