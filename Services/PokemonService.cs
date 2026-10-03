@@ -4,6 +4,8 @@
     * Historial de cambios: 
         02/10/2026 - Creación del método GetPokemonsAsync() para obtener el listado de pokemones.
                     - Implementación de caché al realizar consultas de pokemones. 
+        03/10/2026
+        -Creación del método GetPokemonByIdAsync() para obtener el detalle de un poḱémon por medio de su Id. 
 */
 
 using PokemonServer.Clients;
@@ -96,7 +98,7 @@ public class PokemonService
                 //En caso de que no, se consulta su detalle y se guarda en el caché.
                 if (!exists)
                 {
-                    pokemonDetail = await _pokemonApiClient.GetPokemonById(id);
+                    pokemonDetail = await _pokemonApiClient.GetPokemonByIdAsync(id);
                     pokemonDetailList[id] = pokemonDetail;
                 }
 
@@ -127,5 +129,34 @@ public class PokemonService
         {
             throw new DefaultException();
         }
+    }
+
+    public async Task<PokemonDetailDto> GetPokemonByIdAsync(int id)
+    {
+        try
+        {
+            var pokemonDetailList =
+                _memoryCache.Get<Dictionary<int, PokemonDetailDto>>(
+                    AppConstants.CacheKeys.PokemonDetailList
+                ) ?? [];
+            
+            var exists = pokemonDetailList.TryGetValue(id, out var pokemonDetail);
+            if (!exists)
+            {
+                pokemonDetail = await _pokemonApiClient.GetPokemonByIdAsync(id);
+                pokemonDetailList[id] = pokemonDetail;
+            }
+
+            return pokemonDetail;
+        }
+        catch (CustomException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            throw new DefaultException();
+        } 
+        
     }
 }

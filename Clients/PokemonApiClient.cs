@@ -110,7 +110,7 @@ public class PokemonApiClient
         }
     }
     
-    public async Task<PokemonDetailDto> GetPokemonById(int id)
+    public async Task<PokemonDetailDto> GetPokemonByIdAsync(int id)
     {
         try
         {

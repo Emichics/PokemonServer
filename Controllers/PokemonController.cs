@@ -3,7 +3,10 @@
     * Descripción: controlador de la entidad pokémon.
     * Historial de cambios: 
         02/10/2026
-        - Se agrega la ruta para obtener el catálogo de Tipos de Pokémon GetTypes() 
+        - Se agrega la ruta para obtener el listado de Pokémon GetPokemonList()
+        
+        03/10/2026
+        - Se agrega la ruta para obtener el detalle de un Pokémon por medio de su Id GetPokemonById()
 */
 
 using Microsoft.AspNetCore.Mvc;
@@ -50,6 +53,27 @@ public class PokemonController : ControllerBase
 
             return StatusCode(HttpCodes.InternalServerError, result);
         }
-        
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<PokemonDetailDto>> GetPokemonById(int id)
+    {
+        try
+        {
+            var result = await _pokemonService.GetPokemonByIdAsync(id);
+
+            return StatusCode(HttpCodes.Ok, result);
+        }
+        catch (Exception ex)
+        {
+            var customException = ex as CustomException;
+            var result = new ApiResponseDto<object>
+            {
+                Status = customException.Status ?? Messages.Error.Default.Status,
+                Message = customException.Message ?? Messages.Error.Default.Message
+            };
+
+            return StatusCode(HttpCodes.InternalServerError, result);
+        }
     }
 }
