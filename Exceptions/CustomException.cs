@@ -5,6 +5,7 @@
         02/10/2026
         - Se agrega el error personalizado "DefaultException".
         - Se agrega el error personalizado "PokemonApiException".
+        - Se agrega el error personalizado "ExcelFileException".
 */
 
 using PokemonServer.Constants;
@@ -36,6 +37,14 @@ public class PokemonApiException : CustomException
 {
     public PokemonApiException()
         : base(Messages.Error.PokemonApi)
+    {
+    }
+}
+
+public class ExcelFileException : CustomException
+{
+    public ExcelFileException()
+        : base(Messages.Error.ExcelFile)
     {
     }
 }

@@ -2,10 +2,14 @@
     * Nombre: PokemonService.cs
     * Descripción: clase encargada de los servicios referentes a la entidad Pokémon
     * Historial de cambios: 
-        02/10/2026 - Creación del método GetPokemonsAsync() para obtener el listado de pokemones.
-                    - Implementación de caché al realizar consultas de pokemones. 
+        02/10/2026 
+            - Creación del método GetPokemonsAsync() para obtener el listado de pokemones.
+            - Implementación de caché al realizar consultas de pokemones. 
+        
         03/10/2026
-        -Creación del método GetPokemonByIdAsync() para obtener el detalle de un poḱémon por medio de su Id. 
+            -Creación del método GetPokemonByIdAsync() para obtener el detalle de un poḱémon por medio de su Id.
+            -Creación del método ExportPokemonList() para crear archivo Excel con el listado de Pokémon brindado.
+            -Creación del método ExportPokemonDetail() para crear archivo Excel con el detalle del Pokémon solicitado.
 */
 
 using PokemonServer.Clients;
@@ -20,13 +24,16 @@ public class PokemonService
 {
     private readonly IMemoryCache _memoryCache;
     private readonly PokemonApiClient _pokemonApiClient;
+    private readonly ExcelService _excelService;
 
     public PokemonService(
         IMemoryCache memoryCache,
-        PokemonApiClient pokemonApiClient)
+        PokemonApiClient pokemonApiClient,
+        ExcelService excelService)
     {
         _memoryCache = memoryCache;
         _pokemonApiClient = pokemonApiClient;
+        _excelService = excelService;
     }
 
     public async Task<PaginatedResponseDto<PokemonSummaryDto>> GetPokemonsAsync(int page, int pageSize, string? name, string? type)
@@ -159,4 +166,27 @@ public class PokemonService
         } 
         
     }
+
+    public byte[] ExportPokemonList(List<PokemonSummaryDto> pokemons)
+    {
+        return _excelService.GeneratePokemonExcel(pokemons);
+    }
+
+    public async Task<byte[]> ExportPokemonDetail(int id)
+    {
+        try
+        {
+            var pokemon = await _pokemonApiClient.GetPokemonByIdAsync(id);
+            return _excelService.GeneratePokemonExcel(pokemon);
+        }
+        catch (CustomException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            throw new DefaultException();
+        }
+    }
+
 }

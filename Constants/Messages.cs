@@ -5,6 +5,7 @@
         02/10/2026
         - Se agregan los mensajes de respuesta Ok y Default. 
         - Se agrega el mensaje de respuesta PokemonApi.
+        - Se agrega el mensaje de respuesta ExcelFile.
 */
 
 namespace PokemonServer.Constants;
@@ -38,6 +39,12 @@ public static class Messages
         {
             Status = 0,
             Message = "No fue posible obtener la información de Pokémon."
+        };
+
+        public static readonly MessageConstructor ExcelFile = new()
+        {
+            Status = 0,
+            Message = "Fallo en la creación de archivo Excel."
         };
     }
 }
