@@ -4,6 +4,7 @@
     * Historial de cambios: 
         02/10/2026
         - Se agrega el error personalizado "DefaultException".
+        - Se agrega el error personalizado "PokemonApiException".
 */
 
 using PokemonServer.Constants;
@@ -27,6 +28,14 @@ public class DefaultException : CustomException
 {
     public DefaultException()
         : base(Messages.Error.Default)
+    {
+    }
+}
+
+public class PokemonApiException : CustomException
+{
+    public PokemonApiException()
+        : base(Messages.Error.PokemonApi)
     {
     }
 }

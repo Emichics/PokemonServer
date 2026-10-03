@@ -4,6 +4,7 @@
     * Historial de cambios: 
         02/10/2026
         - Se agregan los mensajes de respuesta Ok y Default. 
+        - Se agrega el mensaje de respuesta PokemonApi.
 */
 
 namespace PokemonServer.Constants;
@@ -31,6 +32,12 @@ public static class Messages
         {
             Status = 0,
             Message = "Ocurrió un error."
+        };
+
+        public static readonly MessageConstructor PokemonApi = new()
+        {
+            Status = 0,
+            Message = "No fue posible obtener la información de Pokémon."
         };
     }
 }

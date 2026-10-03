@@ -1,7 +1,23 @@
+using PokemonServer.Clients;
+using PokemonServer.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var applicationHost = builder.Configuration["Application:Host"];
+var applicationPort = builder.Configuration["Application:Port"];
+
+builder.WebHost.UseUrls(
+    $"http://{applicationHost}:{applicationPort}"
+);
+
+// Servicios
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<CatalogService>();
+builder.Services.AddHttpClient<PokemonApiClient>(client =>
+{
+    var pokemonApiBaseUrl = builder.Configuration["PokemonApi:BaseUrl"];
+    client.BaseAddress = new Uri(pokemonApiBaseUrl!);
+});
 
 var app = builder.Build();
 
