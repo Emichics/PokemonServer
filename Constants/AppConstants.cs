@@ -46,4 +46,19 @@ public static class AppConstants
         }
     }
 
+    public static class EmailValues
+    {
+        public static class PokemonList
+        {
+            public const string Subject = "Listado de Pokémon";
+            public const string Message = "Se adjunta el Excel.";
+        }
+        
+        public static class PokemonDetail
+        {
+            public const string Subject = "Información del Pokémon";
+            public const string Message = "Se adjunta el Excel.";
+        }
+    }
+
 }

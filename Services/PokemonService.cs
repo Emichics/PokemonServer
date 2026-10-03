@@ -10,6 +10,8 @@
             -Creación del método GetPokemonByIdAsync() para obtener el detalle de un poḱémon por medio de su Id.
             -Creación del método ExportPokemonList() para crear archivo Excel con el listado de Pokémon brindado.
             -Creación del método ExportPokemonDetail() para crear archivo Excel con el detalle del Pokémon solicitado.
+            -Creación del método SendEmailPokemonListAsync() para enviar por correo un archivo Excel con el listado de Pokémon brindado.
+            -Creación del método SendEmailPokemonDetailAsync() para para enviar por correo un archivo Excel con el detalle del Pokémon solicitado.
 */
 
 using PokemonServer.Clients;
@@ -25,15 +27,18 @@ public class PokemonService
     private readonly IMemoryCache _memoryCache;
     private readonly PokemonApiClient _pokemonApiClient;
     private readonly ExcelService _excelService;
+    private readonly EmailService _emailService;
 
     public PokemonService(
         IMemoryCache memoryCache,
         PokemonApiClient pokemonApiClient,
-        ExcelService excelService)
+        ExcelService excelService,
+        EmailService emailService)
     {
         _memoryCache = memoryCache;
         _pokemonApiClient = pokemonApiClient;
         _excelService = excelService;
+        _emailService = emailService;
     }
 
     public async Task<PaginatedResponseDto<PokemonSummaryDto>> GetPokemonsAsync(int page, int pageSize, string? name, string? type)
@@ -189,4 +194,52 @@ public class PokemonService
         }
     }
 
+    public async Task SendEmailPokemonListAsync(string recipient, List<PokemonSummaryDto> pokemons)
+    {
+        try
+        {
+            var excel = _excelService.GeneratePokemonExcel(pokemons);
+            await _emailService.SendEmailAsync(
+                recipient,
+                AppConstants.EmailValues.PokemonList.Subject,
+                AppConstants.EmailValues.PokemonList.Message, 
+                excel,
+                AppConstants.ExcelValues.PokemonFileName,
+                AppConstants.ExcelValues.ContentType
+            );
+        }
+        catch (CustomException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            throw new DefaultException();
+        }
+    }
+
+    public async Task SendEmailPokemonDetailAsync(string recipient, int id)
+    {
+        try
+        {
+            var pokemon = await _pokemonApiClient.GetPokemonByIdAsync(id);
+            var excel = _excelService.GeneratePokemonExcel(pokemon);
+            await _emailService.SendEmailAsync(
+                recipient,
+                AppConstants.EmailValues.PokemonDetail.Subject,
+                AppConstants.EmailValues.PokemonDetail.Message, 
+                excel,
+                AppConstants.ExcelValues.PokemonFileName,
+                AppConstants.ExcelValues.ContentType
+            );
+        }
+        catch (CustomException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            throw new DefaultException();
+        }
+    }
 }

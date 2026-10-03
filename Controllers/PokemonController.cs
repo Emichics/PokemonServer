@@ -8,6 +8,8 @@
         03/10/2026
         - Se agrega la ruta para obtener el detalle de un Pokémon por medio de su Id GetPokemonById()
         - Se agrega la ruta para exportar archivo de Excel con los pokémon brindados.
+        - Se agrega la ruta para enviar por correo electrónico un archivo Excel con los pokémon brindados SendEmail(body{recipient, pokemons}).
+        - Se agrega la ruta para enviar por correo electrónico un archivo Excel con el detalle del Pokémon SendEmail(id, body{recipient).      
 */
 
 using Microsoft.AspNetCore.Mvc;
@@ -99,9 +101,54 @@ public class PokemonController : ControllerBase
 
             return File(
                 excel,
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                "pokemons.xlsx"
+                AppConstants.ExcelValues.ContentType,
+                AppConstants.ExcelValues.PokemonFileName
             );
+        }
+        catch (Exception ex)
+        {
+            var customException = ex as CustomException;
+            var result = new ApiResponseDto<object>
+            {
+                Status = customException.Status ?? Messages.Error.Default.Status,
+                Message = customException.Message ?? Messages.Error.Default.Message
+            };
+
+            return StatusCode(HttpCodes.InternalServerError, result);
+        }
+        
+    }
+
+    [HttpPost("sendemail")]
+    public async Task<IActionResult> SendEmail([FromBody] SendPokemonListEmailDto request)
+    
+    {
+        try
+        {
+            await _pokemonService.SendEmailPokemonListAsync(request.Recipient, request.Pokemons);
+            return StatusCode(HttpCodes.Ok, Messages.Success.Ok);
+        }
+        catch (Exception ex)
+        {
+            var customException = ex as CustomException;
+            var result = new ApiResponseDto<object>
+            {
+                Status = customException.Status ?? Messages.Error.Default.Status,
+                Message = customException.Message ?? Messages.Error.Default.Message
+            };
+
+            return StatusCode(HttpCodes.InternalServerError, result);
+        }
+        
+    }
+
+    [HttpPost("{id}/sendemail")]
+    public async Task<IActionResult> SendEmail(int id, [FromBody] SendPokemonDetailEmailDto request)
+    {
+        try
+        {
+            await _pokemonService.SendEmailPokemonDetailAsync(request.Recipient, id );
+            return StatusCode(HttpCodes.Ok, Messages.Success.Ok);
         }
         catch (Exception ex)
         {

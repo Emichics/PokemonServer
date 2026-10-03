@@ -6,6 +6,7 @@
         - Se agrega el error personalizado "DefaultException".
         - Se agrega el error personalizado "PokemonApiException".
         - Se agrega el error personalizado "ExcelFileException".
+        - Se agrega el error personalizado "SendEmailException".
 */
 
 using PokemonServer.Constants;
@@ -44,6 +45,14 @@ public class PokemonApiException : CustomException
 public class ExcelFileException : CustomException
 {
     public ExcelFileException()
+        : base(Messages.Error.ExcelFile)
+    {
+    }
+}
+
+public class SendEmailException : CustomException
+{
+    public SendEmailException()
         : base(Messages.Error.ExcelFile)
     {
     }

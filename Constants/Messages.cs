@@ -6,6 +6,7 @@
         - Se agregan los mensajes de respuesta Ok y Default. 
         - Se agrega el mensaje de respuesta PokemonApi.
         - Se agrega el mensaje de respuesta ExcelFile.
+        - Se agrega el mensaje de respuesta SendEmail.
 */
 
 namespace PokemonServer.Constants;
@@ -45,6 +46,12 @@ public static class Messages
         {
             Status = 0,
             Message = "Fallo en la creación de archivo Excel."
+        };
+
+        public static readonly MessageConstructor SendEmail = new()
+        {
+            Status = 0,
+            Message = "Fallo en el envío de correo electrónico."
         };
     }
 }
