@@ -10,9 +10,11 @@ public static class AppConstants
     public static class CacheKeys
     {
         public const string PokemonList = "PokemonList";
-        public const string TypesList = "TypesList";
+        public const string GeneraList = "GeneraList";
         public const string PokemonDetailList = "PokemonDetailList";
     }
+
+    public static int BatchSize = 50;
 
     public static class PaginationValues
     {

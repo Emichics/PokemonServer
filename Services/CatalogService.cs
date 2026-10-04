@@ -10,30 +10,41 @@ using PokemonServer.Clients;
 using PokemonServer.DTOs;
 using PokemonServer.Utils;
 using PokemonServer.Exceptions;
+using Microsoft.Extensions.Caching.Memory;
+using PokemonServer.Constants;
 
 namespace PokemonServer.Services;
 
 public class CatalogService
 {
     private readonly PokemonApiClient _pokemonApiClient;
+    private readonly IMemoryCache _memoryCache;
 
-    public CatalogService(PokemonApiClient pokemonApiClient)
+    public CatalogService(
+        PokemonApiClient pokemonApiClient,
+        IMemoryCache memoryCache)
     {
         _pokemonApiClient = pokemonApiClient;
+        _memoryCache = memoryCache;
     }
 
-    public async Task<List<PokemonTypeDto>> GetPokemonTypesAsync()
+    public async Task<List<PokemonGenusDto>> GetPokemonGeneraAsync()
     {
         try
         {
-            var response = await _pokemonApiClient.GetPokemonTypesAsync();
+            if (!_memoryCache.TryGetValue(
+                AppConstants.CacheKeys.GeneraList,
+                out Dictionary<string, HashSet<int>>? genusCache))
+            {
+                throw new DefaultException();
+            }
 
-            return response.Results
-                .Select(x => new PokemonTypeDto
+            return genusCache.Keys
+                .Select(genus => new PokemonGenusDto
                 {
-                    Id = StringUtils.GetIdFromUrl(x.Url),
-                    Name = x.Name
+                    Name = genus
                 })
+                .OrderBy(x => x.Name)
                 .ToList();
         }
         catch (CustomException)

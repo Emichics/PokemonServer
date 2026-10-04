@@ -1,11 +1,11 @@
 /*
     * Nombre: PokemonInitializer.cs
-    * Descripción: "Hay que pensar jeje"
+    * Descripción: clase contenedora de las cargas iniciales del aplicativo.
     * Historial: 
         02/10/2026 
         - Creación del método InitializeAsync() para inicializar los caché.
         - Creación del método LoadPokemonListAsync() para guardar en el caché la información básica de todos los pokémon. 
-        - Creación del método LoadPokemonTypesAsync() para guardar en el caché la información de todos los tipos de pokémon.
+        - Creación del método LoadPokemonGeneraAsync() para guardar en el caché la información de todos las especies de pokémon.
         - Creación del método InitializePokemonDetailList() para incializar el caché de la información del detalle de los Pokémon.
 */
 
@@ -33,7 +33,7 @@ public class PokemonInitializer
     public async Task InitializeAsync()
     {
         await LoadPokemonListAsync();
-        await LoadPokemonTypesAsync();
+        await LoadPokemonGeneraAsync();
         InitializePokemonDetailList();
     }
 
@@ -60,33 +60,51 @@ public class PokemonInitializer
         
     }
 
-    private async Task LoadPokemonTypesAsync()
+    private async Task LoadPokemonGeneraAsync()
     {
         try
         {
-            var response = await _pokemonApiClient.GetPokemonTypesAsync();
+            var response = await _pokemonApiClient.GetPokemonSpeciesAsync();
+            var genusCache = new Dictionary<string, HashSet<int>>();
 
-            var typeCache = new Dictionary<string, List<int>>();
-
-            foreach (var type in response.Results)
+            for (int i = 0; i < response.Results.Count; i += AppConstants.BatchSize)
             {
-                var typeDetail = await _pokemonApiClient
-                    .GetPokemonTypeAsync(type.Name);
-
-                var pokemonIds = typeDetail.Pokemon
-                    .Select(x => StringUtils.GetIdFromUrl(x.Pokemon.Url))
+                var batch = response.Results
+                    .Skip(i)
+                    .Take(AppConstants.BatchSize)
                     .ToList();
 
-                typeCache[type.Name] = pokemonIds;
+                var tasks = batch.Select(species =>
+                    _pokemonApiClient.GetPokemonSpeciesDetailAsync(species.Url)
+                );
+
+                var speciesDetails = await Task.WhenAll(tasks);
+
+                foreach (var speciesDetail in speciesDetails)
+                {
+                    var genus = speciesDetail.Genera
+                        .FirstOrDefault(x => x.Language.Name == "en")
+                        ?.Genus;
+
+                    if (string.IsNullOrWhiteSpace(genus)) continue;
+
+                    if (!genusCache.ContainsKey(genus)) genusCache[genus] = [];
+
+                    genusCache[genus].Add(speciesDetail.Id);
+                }
             }
 
-            _memoryCache.Set(AppConstants.CacheKeys.TypesList, typeCache);
+            _memoryCache.Set(
+                AppConstants.CacheKeys.GeneraList,
+                genusCache
+            );
         }
-        catch(Exception)
+        catch (Exception)
         {
-            Console.WriteLine($"Error de incialización de caché: {AppConstants.CacheKeys.TypesList}");
+            Console.WriteLine(
+                $"Error de inicialización de caché: {AppConstants.CacheKeys.GeneraList}"
+            );
         }
-        
     }
 
     private void InitializePokemonDetailList()

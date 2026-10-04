@@ -3,7 +3,7 @@
     * Descripción: controlador de los catálogos.
     * Historial de cambios: 
         02/10/2026
-        - Se agrega la ruta para obtener el catálogo de Tipos de Pokémon GetTypes() 
+        - Se agrega la ruta para obtener el catálogo de Genus de Pokémon GetTypes() 
 */
 
 using Microsoft.AspNetCore.Mvc;
@@ -25,14 +25,14 @@ public class CatalogController : ControllerBase
         _catalogService = catalogService;
     }
 
-    [HttpGet("types")]
-    public async Task<IActionResult> GetTypes()
+    [HttpGet("genus")]
+    public async Task<IActionResult> GetGenera()
     {
         try
         {
-            var response = await _catalogService.GetPokemonTypesAsync();
+            var response = await _catalogService.GetPokemonGeneraAsync();
 
-            var result = new ApiResponseDto<List<PokemonTypeDto>>
+            var result = new ApiResponseDto<List<PokemonGenusDto>>
             {
                 Status = Messages.Success.Ok.Status,
                 Message = Messages.Success.Ok.Message,

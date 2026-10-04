@@ -32,16 +32,16 @@ public class PokemonController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetPokemonList(int page = AppConstants.PaginationValues.DefaultPage, int pageSize = AppConstants.PaginationValues.DefaultPageSize, string? name = null, string? type = null)
+    public async Task<ActionResult> GetPokemonList(int page = AppConstants.PaginationValues.DefaultPage, int pageSize = AppConstants.PaginationValues.DefaultPageSize, string? name = null, string? genus = null)
     {
         try
         {
             page = page < 1 ? AppConstants.PaginationValues.DefaultPage : page;
             pageSize = pageSize < 1 ? AppConstants.PaginationValues.DefaultPageSize : pageSize;
             name = string.IsNullOrWhiteSpace(name) ? null : name.Trim();
-            type = string.IsNullOrWhiteSpace(type) ? null : type.Trim().ToLower();
+            genus = string.IsNullOrWhiteSpace(genus) ? null : genus.Trim();
 
-            var result = await _pokemonService.GetPokemonsAsync(page, pageSize, name, type);
+            var result = await _pokemonService.GetPokemonsAsync(page, pageSize, name, genus);
             var response = new ApiResponseDto<PaginatedResponseDto<PokemonSummaryDto>>
             {
                 Status = Messages.Success.Ok.Status,

@@ -3,7 +3,7 @@
     * Descripción: cliente del API de Pokémon.
     * Historial de cambios: 
         02/10/2026
-        - Se agrega el método para obtener el catálogo de Tipos de Pokémon GetPokemonTypesAsync()
+        - Se agrega el método para obtener el catálogo de Tipos de Pokémon GetPokemonGenussAsync()
         - Se agrega el método para obtener el listado completo de todos los pokémon GetPokemonListAsync()
         - Se agrega el método para obtener la información de Pokémon por tipo GetPokemonTypeAsync()
         
@@ -29,18 +29,45 @@ public class PokemonApiClient
         _httpClient = httpClient;
     }
 
-    public async Task<PokemonTypeResponse> GetPokemonTypesAsync()
+    public async Task<PokemonSpeciesResponse> GetPokemonSpeciesAsync()
     {
         try
         {
-            var response = await _httpClient.GetAsync("type");
+            var response = await _httpClient.GetAsync($"pokemon-species?limit={AppConstants.PaginationValues.MaxPageSize}");
 
             response.EnsureSuccessStatusCode();
 
-            var respPokemonTypes = await response.Content
-                .ReadFromJsonAsync<PokemonTypeResponse>();
+            var respPokemonSpecies = await response.Content
+                .ReadFromJsonAsync<PokemonSpeciesResponse>();
 
-            return respPokemonTypes ?? throw new PokemonApiException();
+            return respPokemonSpecies ?? throw new PokemonApiException();
+        }
+        catch (CustomException)
+        {
+            throw;
+        }
+        catch (HttpRequestException)
+        {
+            throw new PokemonApiException();
+        }
+        catch (Exception)
+        {
+            throw new DefaultException();
+        }
+    }
+
+    public async Task<PokemonSpeciesDetailResponse> GetPokemonSpeciesDetailAsync(string url)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync(url);
+
+            response.EnsureSuccessStatusCode();
+
+            var respPokemonSpeciesDetail = await response.Content
+                .ReadFromJsonAsync<PokemonSpeciesDetailResponse>();
+
+            return respPokemonSpeciesDetail ?? throw new PokemonApiException();
         }
         catch (CustomException)
         {
@@ -66,33 +93,6 @@ public class PokemonApiClient
 
             var result = await response.Content
                 .ReadFromJsonAsync<PokemonListResponse>();
-
-            return result ?? throw new PokemonApiException();
-        }
-        catch (CustomException)
-        {
-            throw;
-        }
-        catch (HttpRequestException)
-        {
-            throw new PokemonApiException();
-        }
-        catch (Exception)
-        {
-            throw new DefaultException();
-        }
-    }
-
-    public async Task<PokemonTypeDetailResponse> GetPokemonTypeAsync(string type)
-    {
-        try
-        {
-            var response = await _httpClient.GetAsync($"type/{type}");
-
-            response.EnsureSuccessStatusCode();
-
-            var result = await response.Content
-                .ReadFromJsonAsync<PokemonTypeDetailResponse>();
 
             return result ?? throw new PokemonApiException();
         }

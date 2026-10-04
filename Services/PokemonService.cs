@@ -41,7 +41,7 @@ public class PokemonService
         _emailService = emailService;
     }
 
-    public async Task<PaginatedResponseDto<PokemonSummaryDto>> GetPokemonsAsync(int page, int pageSize, string? name, string? type)
+    public async Task<PaginatedResponseDto<PokemonSummaryDto>> GetPokemonsAsync(int page, int pageSize, string? name, string? genus)
     {
         try
         {
@@ -51,10 +51,10 @@ public class PokemonService
                     AppConstants.CacheKeys.PokemonList
                 ) ?? [];
             
-            //Obtiene la lista completa de los tipos de pokémon que existen en el caché
-            var typesList =
-                _memoryCache.Get<Dictionary<string, List<int>>>(
-                    AppConstants.CacheKeys.TypesList
+            // Obtiene la lista de genus y sus IDs de pokémon desde el caché.
+            var generaList =
+                _memoryCache.Get<Dictionary<string, HashSet<int>>>(
+                    AppConstants.CacheKeys.GeneraList
                 ) ?? [];
             
             //Obtiene la lista de detalles de todos los pokémons que estén en el caché
@@ -65,16 +65,19 @@ public class PokemonService
 
             IEnumerable<int> pokemonIds = pokemonList.Keys;
 
-            //Si se filtra por "type" se obtienen todos los ids de los pokemons con ese "type"
-            if (type is not null)
+            // Si se filtra por genus, obtiene los IDs de los pokémons que pertenecen a ese genus.
+            if (genus is not null)
             {
-                var typeExists = typesList.TryGetValue(
-                    type,
-                    out var typePokemonIds
+                var genusExists = generaList.TryGetValue(
+                    genus,
+                    out var genusPokemonIds
                 );
+                Console.WriteLine($"Genus?: {genus}");
+                Console.WriteLine($"EXISTS?: {genusExists}");
 
-                pokemonIds = typeExists ? pokemonIds.Intersect(typePokemonIds) : []; 
-
+                pokemonIds = genusExists
+                    ? pokemonIds.Intersect(genusPokemonIds)
+                    : [];
             }
 
             //Si se filtra por "name" se obtienen todos los ids de los pokemons que coincidan con el nombre dado
